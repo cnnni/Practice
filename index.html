@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 情緒記帳小幫手</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #f0f2f5; 
+        }
+        .container { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 350px; 
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header span { font-size: 40px; }
+        .header h2 { margin: 10px 0 0 0; color: #333; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            border: 2px solid #e1e1e1; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            outline: none;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+        #result { 
+            margin-top: 20px; 
+            white-space: pre-wrap; 
+            color: #333; 
+            font-size: 0.9rem; 
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <span>💡</span>
+            <h2>AI 情緒記帳小幫手</h2>
+        </div>
+        
+        <input type="text" id="userInput" placeholder="例如：今天午餐吃了150元，心情很好">
+        <button onclick="analyze()">分析消費</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const input = document.getElementById('userInput');
+            const resultDiv = document.getElementById('result');
+            
+            if(!input.value) return;
+
+            resultDiv.innerText = "正在分析中，請稍候...";
+            
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: input.value })
+                });
+                
+                const json = await res.json();
+                
+                if (json.success) {
+                    resultDiv.innerText = "分析結果：\n" + JSON.stringify(json.data, null, 2);
+                } else {
+                    resultDiv.innerText = "錯誤：" + json.error;
+                }
+            } catch (err) {
+                resultDiv.innerText = "連線失敗，請檢查後端服務是否已啟動。";
+            }
+        }
+    </script>
+</body>
+</html>
